@@ -1,0 +1,6 @@
+Сайт: http://expressjs.com
+Встановити експрес генератор: npm install express-generator -g
+Запустити: set DEBUG=myapp:* & npm start
+          потім запускати: npm start
+Ще один сайт: http://expressjs.com/ru/api.html
+Форми: https://webref.ru/layout/learn-html-css/building-forms
