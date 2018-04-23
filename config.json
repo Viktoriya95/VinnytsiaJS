@@ -1,0 +1,12 @@
+{
+  "twitter": {
+    "consumer_key": "0lVFL6FxnVQoDahYogHyjG1aM",
+    "consumer_secret": "KOKums3gdMgezULd7esJnZHazLCOiJzqfvq0oYz80G80Suwrxr",
+    "access_token_key": "843887564419481600-RWphuUxFjvOeQWkjIXFXTty4gCzhO6k",
+    "access_token_secret": "zekRzSCBz1eO1bWpSKja5YhRYnLoFaUFVnDuHkPRY6KMH"
+  },
+  "db": {
+      "dbName": "expressTwitterMongo",
+      "dbUrl": "mongodb://localhost:27017"
+  }
+}

@@ -1,0 +1,8 @@
+https://stackoverflow.com/questions/36259769/32-bit-servers-dont-have-journaling-enabled-by-default-please-use-journal-if про монго
+https://docs.mongodb.com/manual/reference/method/js-collection/ про колекції документація
+https://www.npmjs.com/package/mongodb підключення до програми
+
+справити routes/users.js, app.js
+
+база даних: usersAll
+колекція: users
