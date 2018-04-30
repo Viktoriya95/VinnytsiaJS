@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  div#map
+  p #{checkins}
+  script. 
+    function initMap() {
+      var map = new google.maps.Map(document.getElementById('map'), {
+        center: #{checkins[0].cord},
+        zoom: 14
+      });
+
+      var checkins = !{JSON.stringify(checkins)};
+      console.log(checkins);
+
+      checkins.map((checkin) => new google.maps.Marker({
+        position: checkin.cord,
+        map: map,
+        title: checkin.place
+      }));
+    }
+
+  script(script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDFKtIHU2HIyWQKkyCebL44fU_8lChIZVk&callback=initMap" async defer)
