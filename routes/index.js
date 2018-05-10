@@ -44,10 +44,13 @@ router.post('/addcheckin', function(req, res){
   //newCheckin.save(function(error, checkin){
     //console.log(error, checkin);
   //});
+  //console.log(req);
   var mark = req.body;
-  console.log(mark.lat.toString());
+  console.log(req.body);
+  //console.log(mark.lat.toString());
   //var check = JSON.stringify(mark);
-  console.log( check );
+  //console.log( check );
+  res.sendStatus(200);
 })
 
 module.exports = router;
