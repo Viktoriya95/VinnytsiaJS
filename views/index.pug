@@ -3,21 +3,61 @@ extends layout
 block content
   div#map
   p #{checkins}
-  script. 
+  script.
+    var map;
+    var markers = [];
     function initMap() {
-      var map = new google.maps.Map(document.getElementById('map'), {
-        center: #{checkins[0].cord},
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 49.2212619, lng: 28.4229144 },
         zoom: 14
       });
+      map.addListener('click', function(e) {
+        placeMarkerAndPanTo(e.latLng, map);
+      });
+    }
 
-      var checkins = !{JSON.stringify(checkins)};
-      console.log(checkins);
+    fetch('http://localhost:3000/checkins')
+      .then((resp) => resp.json()) // Transform the data into json
+      .then(function(checkins) {
+        console.log(checkins);
+        checkins.map((checkin) => addMarker(checkin));
+      })
+      .catch(function() {
+        console.log('Error')
+      });
 
-      checkins.map((checkin) => new google.maps.Marker({
+    function addMarker(checkin) {
+      //- debugger;
+      var marker = new google.maps.Marker({
         position: checkin.cord,
         map: map,
         title: checkin.place
-      }));
+      });
+      markers.push(marker);
+    }
+
+    function placeMarkerAndPanTo(latLng, map) {
+      var lat = latLng.lat();
+      var lng = latLng.lng();
+      console.log(lat);
+      var marker1 = new google.maps.Marker({
+        position: latLng,
+        map: map
+      });
+      map.panTo(latLng);
+      console.log(JSON.stringify(latLng));
+      fetch('http://localhost:3000/addcheckin',
+      {
+        method: 'POST',
+        body: latLng
+      })
+      .then(json)
+      .then(function (data) {
+        console.log('Request succeeded with JSON response', data);
+      })
+      .catch(function (error) {
+        console.log('Request failed', error);
+      });
     }
 
   script(script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDFKtIHU2HIyWQKkyCebL44fU_8lChIZVk&callback=initMap" async defer)

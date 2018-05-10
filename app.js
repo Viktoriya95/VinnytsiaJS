@@ -24,6 +24,10 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/secret', secretRouter);
 
+/*app.use('/', function(req, res) {
+  res.render('index');
+});*/
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   res.status(404);

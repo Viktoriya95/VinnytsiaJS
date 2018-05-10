@@ -12,11 +12,15 @@ console.log(mongoose.connection.readyState);
 
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  
+router.get('/', function(req, res, next){
+  res.render('index');
+})
+
+router.get('/checkins', function(req, res, next) {
+
   // let user = {}
 
-  const newCheckin = new checkinModel();
+  //const newCheckin = new checkinModel();
 
   // const newUser = new userModel(user);
   // newUser.save(function(error, user){
@@ -30,8 +34,20 @@ router.get('/', function(req, res, next) {
   checkinModel.find({}, function (err, checkins) {
     //console.log(checkins[0].cord);
     //console.log(checkins);
-    res.render('index', {checkins: checkins});
+    //res.render('index', {checkins: checkins});
+    res.send( checkins );
   });
 });
+
+router.post('/addcheckin', function(req, res){
+  //const newCheckin = new checkinModel();
+  //newCheckin.save(function(error, checkin){
+    //console.log(error, checkin);
+  //});
+  var mark = req.body;
+  console.log(mark.lat.toString());
+  //var check = JSON.stringify(mark);
+  console.log( check );
+})
 
 module.exports = router;

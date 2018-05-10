@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const Checkins = new Schema({
     name: {
         type: String,
-        required: true
+        //required: true
     },
     place: String,
     cord: {
