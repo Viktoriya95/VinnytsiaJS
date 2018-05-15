@@ -36,17 +36,25 @@ router.get('/checkins', function(req, res, next) {
     //console.log(checkins);
     //res.render('index', {checkins: checkins});
     res.send( checkins );
-  });
-});
+  })
+})
 
 router.post('/addcheckin', function(req, res){
-  //const newCheckin = new checkinModel();
+  //console.log(req);
+  var marker = req.body;
+  let checkin = {
+    name: marker.name,
+    place: marker.place,
+    cord: {
+    	lat:Number(marker.cord.lat),
+    	lng:Number(marker.cord.lng)
+    }
+  }
+  console.log(checkin);
+  //const newCheckin = new checkinModel(checkin);
   //newCheckin.save(function(error, checkin){
     //console.log(error, checkin);
   //});
-  //console.log(req);
-  var mark = req.body;
-  console.log(req.body);
   //console.log(mark.lat.toString());
   //var check = JSON.stringify(mark);
   //console.log( check );
