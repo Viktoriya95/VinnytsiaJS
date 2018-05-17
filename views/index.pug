@@ -1,7 +1,6 @@
 extends layout
 
 block content
-
   <div id="a"><h1>Your comment</h1><div id="windows">
     form()
       div.form-group
@@ -14,16 +13,15 @@ block content
       <script>
         var form = document.querySelector("form");
         form.addEventListener("submit", function(event) {
-          name = form.elements.name.value;
-          comment = form.elements.comment.value;
+          console.console.log(form.elements.name.value);
           event.preventDefault();
         })
       </script>
   <a href="#" onclick="hideA();" class="pages" style="float: right;">Close</a>
   </div></div>
   <div id="b">vvvv</div>
-
   div#map
+  p #{checkins}
   script.
     var map;
     var markers = [];
@@ -31,41 +29,42 @@ block content
     var marker;
     var name = '';
     var comment = '';
-
+    var form;
+    
     function initMap() {
       map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: 49.2212619, lng: 28.4229144 },
         zoom: 14
       });
-
       map.addListener('click', function(e) {
         placeMarkerAndPanTo(e.latLng, map);
+        
         fetch('http://localhost:3000/addcheckin',
         {
           method: 'POST',
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(marker)
+          body: JSON.stringify(latLng)
         })
         .then(function (data) {
           console.log('Request succeeded with JSON response', data);
         })
         .catch(function (error) {
           console.log('Request failed', error);
-        })
-      }
+        });
+      });
     }
 
     fetch('http://localhost:3000/checkins')
-    .then((resp) => resp.json()) // Transform the data into json
-    .then(function(checkins) {
-      console.log(checkins);
-      checkins.map((checkin) => addMarker(checkin));
-    })
-    .catch(function() {
-      console.log('Error')
-    })
+      .then((resp) => resp.json()) // Transform the data into json
+      .then(function(checkins) {
+        console.log(checkins);
+        checkins.map((checkin) => addMarker(checkin));
+      })
+      .catch(function() {
+        console.log('Error')
+      });
 
     function addMarker(checkin) {
       //- debugger;
@@ -91,7 +90,7 @@ block content
         }
       }
     }
-
+    
     function geocodeLatLng(map, latlng1) {
       var infoWindow = new google.maps.InfoWindow();
       var geocoder = new google.maps.Geocoder();
@@ -113,7 +112,7 @@ block content
         }
       });
     }
-
+    
     function saveUserComments(){
       window.onload = function()
       {
