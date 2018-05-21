@@ -129,7 +129,19 @@ function geocodeLatLng(map, latlng1) {
   </div>
 </div>
 
-
+<div id="a"><h1>Your comment</h1><div id="windows">
+    <form>
+      div.form-group
+        label(for='name') Name:
+        input#name.form-control(type='text', placeholder='first and last' name='name', required)
+      div.form-group
+        label(for='comment') Comment:
+        input#comment.form-control(type='textarea', placeholder='Your comment' name='comment')
+      button.btn.btn-primary(type='button' onclick="addItem();") Save checkin    
+    </form>
+  <a href="#" onclick="hideA();" class="pages" style="float: right;">Close</a>
+  </div></div>
+  <div id="b">vvvv</div>
 
 
 method='POST' action='/regist'
@@ -293,3 +305,80 @@ block content
   <a href="#" onclick="hideA();" class="pages" style="float: right;">Close</a>
   </div></div>
   <div id="b">vvvv</div>
+
+
+
+
+form = document.querySelector("form");
+form.addEventListener("submit", function(event) {
+  name = document.form.name.value;
+})
+
+
+
+
+
+
+<div id="a"><h1>Your comment</h1><div id="windows">
+    form()
+      div.form-group
+        label(for='name') Name:
+        input#name.form-control(type='text', placeholder='first and last', name='name', autocomplete='off', required)
+      div.form-group
+        label(for='comments') Comments:
+        input#name.form-control(type='textarea', placeholder='comments', name='comments', autocomplete='off')
+      button.btn.btn-primary(type='submit') Save checkin
+      script.
+        form = document.querySelector("form");
+        form.addEventListener("submit", function(event) {
+          console.log(form.elements.name.value);
+        })
+  <a href="#" onclick="hideA();" class="pages" style="float: right;">Close</a>
+  </div></div>
+  <div id="b">vvvv</div>
+
+  function saveUserComments(){
+      window.onload = function()
+      {
+        a = document.getElementById("a");
+        b = document.getElementById("b");
+      }
+      b.style.filter = "alpha(opacity=80)";
+      b.style.opacity = 0.8;
+      b.style.display = "block";
+      a.style.display = "block";
+      a.style.top = "200px";
+    }
+    function hideA()
+    {
+      b.style.display = "none";
+      a.style.display = "none";
+    }
+
+
+
+
+
+
+
+
+
+
+checkin.test_users        checkin.checkins
+
+
+
+
+file1
+window.storage = {}; // для пространства имен, что бы много мусора в window не пихать
+window.storage.globalVar = 100;
+
+file2
+(function () {
+    /** анонимная ф-ция с вашим js-java connector */
+    var localVar = window.storage.globalVar;
+})();
+
+
+
+Куки: https://learn.javascript.ru/cookie
