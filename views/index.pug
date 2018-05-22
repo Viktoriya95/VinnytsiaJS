@@ -1,8 +1,129 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-  <img src= 'images/hello.png'>
-  <p><a href="../add">Can you register here?</a></p>
+  <div id="a"><h1>Your comment</h1><div id="windows">
+    <form>
+      div.form-group
+        label(for='name') Name:
+        input#name.form-control(type='text', placeholder='first and last' name='name', required)
+      div.form-group
+        label(for='comment') Comment:
+        input#comment.form-control(type='textarea', placeholder='Your comment' name='comment')
+      button.btn.btn-primary(type='button' onclick="hideA();") Save checkin    
+    </form>
+  <a href="#" onclick="hideA();" class="pages" style="float: right;">Close</a>
+  </div></div>
+  <div id="b">vvvv</div>
+  div#map
+  <p><a href="../authenticate">Authenticate</a></p>
   <p><a href="../users">All users</a></p>
+  script.
+    var map;
+    var markers = [];
+    var place;
+    var marker;
+    var name = '';
+    var comment = '';
+    var form;
+    
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 49.2212619, lng: 28.4229144 },
+        zoom: 14
+      });
+      map.addListener('click', function(e) {
+        markerPanTo(e.latLng, map);
+        
+        fetch('http://localhost:3000/addcheckin',
+        {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(marker)
+        })
+        .then(function (data) {
+          console.log('Request succeeded with JSON response', data);
+        })
+        .catch(function (error) {
+          console.log('Request failed', error);
+        });
+      });
+    }
+
+    fetch('http://localhost:3000/checkins')
+      .then((resp) => resp.json()) // Transform the data into json
+      .then(function(checkins) {
+        console.log(checkins);
+        checkins.map((checkin) => addMarker(checkin));
+      })
+      .catch(function() {
+        console.log('Error')
+      });
+
+    function addMarker(checkin) {
+      //- debugger;
+      var marker = new google.maps.Marker({
+        position: checkin.cord,
+        map: map,
+        title: checkin.place
+      });
+      markers.push(marker);
+    }
+
+    function markerPanTo(latLng, map) {
+      map.panTo(latLng);
+      var latlng1 = (new google.maps.LatLng(latLng.lat(), latLng.lng()));
+      saveUserComments();
+      geocode(map, latlng1);
+      marker = {
+        name: name,
+        place: place,
+        cord: {
+          lat:Number(latLng.lat()),
+          lng:Number(latLng.lng())
+        }
+      }
+    }
+
+    function geocode(map, latlng1){
+      var infoWindow = new google.maps.InfoWindow();
+      var geocoder = new google.maps.Geocoder();
+      geocoder.geocode({'location': latlng1}, function(results, status) {
+        if (status === 'OK') {
+          if (results[1]) {
+            place = results[0].formatted_address;
+            var marker = new google.maps.Marker({
+                position: latlng1,
+                map: map
+              })
+            infowindow.open(map, marker);
+          } else {
+            window.alert('No results found');
+          }
+        } else {
+          window.alert('Geocoder failed due to: ' + status);
+        }
+      });
+    }
+    
+    function saveUserComments(){
+      window.onload = function()
+      {
+        a = document.getElementById("a");
+        b = document.getElementById("b");
+      }
+      b.style.filter = "alpha(opacity=80)";
+      b.style.opacity = 0.8;
+      b.style.display = "block";
+      a.style.display = "block";
+      a.style.top = "200px";
+      form = document.querySelector("form");
+      name = form.elements.name.value;
+    }
+    
+    function hideA()
+    {
+      b.style.display = "none";
+      a.style.display = "none";
+    }

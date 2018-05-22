@@ -3,27 +3,21 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var fs = require('fs');
+const User = require('./Models/userSchema.js');
+const mongoose = require('mongoose');
+mongoose.connect("mongodb+srv://User3:test@brainbasketcheckin-h7hkk.mongodb.net/checkin");
+const db = mongoose.connection;
+var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
+const userModel = db.model('test_users', User);
+var token;
 
 var indexRouter = require('./routes/index');
-var registrationRouter = require('./routes/add');
-var registerRouter = require('./routes/register');
 var usersRouter = require('./routes/users');
+var secretRouter = require('./routes/secret');
+var authenticateRouter = require('./routes/authenticate');
+//var registerRouter = require('./routes/register');
 
 var app = express();
-
-var text = "";
-fs.open('log.csv', "r+", 0644, function(err, file_handle) {
-  	if (!err) {
-      fs.readFile('log.csv', function (err, contents) {
-        text += contents.toString();
-        //console.log(text);
-  	})} else {
-  		  text = '';
-    }
-  });
-
-//console.log(text + "text");
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -36,41 +30,52 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/add', registrationRouter);
-app.use('/register', registerRouter);
 app.use('/users', usersRouter);
+app.use('/secret', secretRouter);
+app.use('/authenticate', authenticateRouter);
+//app.use('/register', registerRouter);
 
-app.post('/regist', function (req, res) {
-  // req.body.title
-  //var htm = req.body;
-  //console.log(htm);
-  var massive_string = {name: req.body.name.toString(),
-      email: req.body.email.toString(),
-      password: req.body.password.toString(),
-      confirmPassword: req.body.confirmPassword.toString()};
-  var string = ()=>{
-    for(key in massive_string){
-        text += (key + ": " + massive_string[key] + '\n');
-    }
-    text += '\n';
-    return text;
+/*app.use('/', function(req, res) {
+  res.render('index');
+});*/
+
+app.post('/authenticate', function(req, res){
+  // find the user
+  userModel.findOne({name: req.body.name}, function(err, user) {
+  if (err) throw err;
+  if (!user) {
+    res.json({ success: false, message: 'Authentication failed. User not found.' });
+  } else if (user) {
+    // check if password matches
+    if (user.password != req.body.password) {
+      res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+    } else {
+      // if user is found and password is right
+      // create a token with only our given payload
+  // we don't want to pass in the entire user since that has the password
+  const payload = {
+    admin: user.admin 
+  };
+      token = jwt.sign(payload, config.secret, {
+        expiresInMinutes: 1440 // expires in 24 hours
+      });
+      // return the information including token as JSON
+      res.json({
+        success: true,
+        message: 'Enjoy your token!',
+        token: token
+      });
+    }   
   }
-  fs.open("log.csv", "w+", 0644, function(err, file_handle) {
-   if (!err) {
-       fs.write(file_handle, string(), null, 'ascii', function(err, written) {
-         if (!err) {
-            console.log("Текст успешно записан в файл");
-
-        } else {
-            console.log("Произошла ошибка при записи");
-        }
-    });}})
-  res.redirect('/register');
-});
+  });
+})
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+  res.status(404);
+  res.locals.message = 'some error text';
+  res.render('404');
+  next();
 });
 
 // error handler
