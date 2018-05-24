@@ -9,13 +9,13 @@ block content
       div.form-group
         label(for='comment') Comment:
         input#comment.form-control(type='textarea', placeholder='Your comment' name='comment')
-      button.btn.btn-primary(type='button' onclick="hideA();") Save checkin    
+      button.btn.btn-primary(type='button' onclick="postData();") Save checkin    
     </form>
   <a href="#" onclick="hideA();" class="pages" style="float: right;">Close</a>
   </div></div>
   <div id="b">vvvv</div>
   div#map
-  <p><a href="../auth">Regist here</a></p>
+  <p><a href="../authenticate">Regist here</a></p>
   <p><a href="../users">All users</a></p>
   script.
     var map;
@@ -33,21 +33,6 @@ block content
       });
       map.addListener('click', function(e) {
         markerPanTo(e.latLng, map);
-        
-        fetch('http://localhost:3000/addcheckin',
-        {
-          method: 'POST',
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(marker)
-        })
-        .then(function (data) {
-          console.log('Request succeeded with JSON response', data);
-        })
-        .catch(function (error) {
-          console.log('Request failed', error);
-        });
       });
     }
 
@@ -73,17 +58,12 @@ block content
 
     function markerPanTo(latLng, map) {
       map.panTo(latLng);
-      var latlng1 = (new google.maps.LatLng(latLng.lat(), latLng.lng()));
-      saveUserComments();
-      geocode(map, latlng1);
-      marker = {
-        name: name,
-        place: place,
-        cord: {
+      var latlng1 = new google.maps.LatLng(latLng.lat(), latLng.lng());
+      cord = {
           lat:Number(latLng.lat()),
           lng:Number(latLng.lng())
         }
-      }
+      saveUserComments(map, latlng1);
     }
 
     function geocode(map, latlng1){
@@ -97,6 +77,7 @@ block content
                 position: latlng1,
                 map: map
               })
+            formMarker();
             infowindow.open(map, marker);
           } else {
             window.alert('No results found');
@@ -107,7 +88,7 @@ block content
       });
     }
     
-    function saveUserComments(){
+    function saveUserComments(map, latlng1){
       window.onload = function()
       {
         a = document.getElementById("a");
@@ -118,12 +99,38 @@ block content
       b.style.display = "block";
       a.style.display = "block";
       a.style.top = "200px";
-      form = document.querySelector("form");
-      name = form.elements.name.value;
+      geocode(map, latlng1);
     }
     
     function hideA()
     {
       b.style.display = "none";
       a.style.display = "none";
+    }
+    
+    function formMarker(){
+      marker = {
+        name: name,
+        place: place,
+        cord: cord
+      }
+    }
+    
+    function postData(){
+      marker.name = document.getElementById('name').value;
+      fetch('http://localhost:3000/addcheckin',
+        {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(marker)
+        })
+      .then(function (data) {
+        console.log('Request succeeded with JSON response', data);
+      })
+      .then(hideA())
+      .catch(function (error) {
+        console.log('Request failed', error);
+      });
     }

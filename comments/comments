@@ -137,7 +137,7 @@ function geocodeLatLng(map, latlng1) {
       div.form-group
         label(for='comment') Comment:
         input#comment.form-control(type='textarea', placeholder='Your comment' name='comment')
-      button.btn.btn-primary(type='button' onclick="addItem();") Save checkin    
+      button.btn.btn-primary(type='button' onclick="addItem();") Save checkin
     </form>
   <a href="#" onclick="hideA();" class="pages" style="float: right;">Close</a>
   </div></div>
@@ -382,3 +382,152 @@ file2
 
 
 Куки: https://learn.javascript.ru/cookie
+
+
+
+
+
+
+function formMarker(){
+  marker = {
+    name: name,
+    place: place,
+    cord: cord
+  }
+}
+
+
+
+
+
+extends layout
+
+block content
+  <div id="a"><h1>Your comment</h1><div id="windows">
+    <form>
+      div.form-group
+        label(for='name') Name:
+        input#name.form-control(type='text', placeholder='first and last' name='name', required)
+      div.form-group
+        label(for='comment') Comment:
+        input#comment.form-control(type='textarea', placeholder='Your comment' name='comment')
+      button.btn.btn-primary(type='button' onclick="postData();") Save checkin
+    </form>
+  <a href="#" onclick="hideA();" class="pages" style="float: right;">Close</a>
+  </div></div>
+  <div id="b">vvvv</div>
+  div#map
+  <p><a href="../authenticate">Regist here</a></p>
+  <p><a href="../users">All users</a></p>
+  script.
+    var map;
+    var markers = [];
+    var place;
+    var marker;
+    var name = '';
+    var comment = '';
+    var form;
+    var cord;
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 49.2212619, lng: 28.4229144 },
+        zoom: 14
+      });
+      map.addListener('click', function(e) {
+        markerPanTo(e.latLng, map);
+
+
+      });
+    }
+
+    fetch('http://localhost:3000/checkins')
+      .then((resp) => resp.json()) // Transform the data into json
+      .then(function(checkins) {
+        console.log(checkins);
+        checkins.map((checkin) => addMarker(checkin));
+      })
+      .catch(function() {
+        console.log('Error')
+      });
+
+    function addMarker(checkin) {
+      //- debugger;
+      var marker = new google.maps.Marker({
+        position: checkin.cord,
+        map: map,
+        title: checkin.place
+      });
+      markers.push(marker);
+    }
+
+    function markerPanTo(latLng, map) {
+      map.panTo(latLng);
+      var latlng1 = (new google.maps.LatLng(latLng.lat(), latLng.lng()));
+      cord = {
+          lat:Number(latLng.lat()),
+          lng:Number(latLng.lng())
+        }
+      geocode(map, latlng1);
+    }
+
+    function geocode(map, latlng1){
+      var infoWindow = new google.maps.InfoWindow();
+      var geocoder = new google.maps.Geocoder();
+      geocoder.geocode({'location': latlng1}, function(results, status) {
+        if (status === 'OK') {
+          if (results[1]) {
+            place = results[0].formatted_address;
+            var marker1 = new google.maps.Marker({
+                position: latlng1,
+                map: map
+              })
+            saveUserComments();
+            infowindow.open(map, marker1);
+          } else {
+            window.alert('No results found');
+          }
+        } else {
+          window.alert('Geocoder failed due to: ' + status);
+        }
+      });
+    }
+
+    function saveUserComments(){
+      window.onload = function()
+      {
+        a = document.getElementById("a");
+        b = document.getElementById("b");
+      }
+      b.style.filter = "alpha(opacity=80)";
+      b.style.opacity = 0.8;
+      b.style.display = "block";
+      a.style.display = "block";
+      a.style.top = "200px";
+      form = document.querySelector("form");
+      name = form.elements.name.value;
+    }
+
+    function hideA()
+    {
+      b.style.display = "none";
+      a.style.display = "none";
+    }
+
+    function postData(){
+      fetch('http://localhost:3000/addcheckin',
+      {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(marker)
+      })
+      .then(function (data) {
+        console.log('Request succeeded with JSON response', data);
+      })
+      .catch(function (error) {
+        console.log('Request failed', error);
+      });
+      hideA();
+    })
