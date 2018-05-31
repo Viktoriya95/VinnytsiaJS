@@ -12,6 +12,7 @@ const userModel = db.model('test_users', User);
 var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config.json'); // get our config file
 var token;
+var passwordHash = require('password-hash');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -33,6 +34,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/users/add', usersRouter);
 app.use('/secret', secretRouter);
 app.use('/authenticate', authenticateRouter);
 //app.use('/register', registerRouter);
@@ -48,25 +50,28 @@ app.post('/authenticate', function(req, res){
     if (!user) {
       res.json({ success: false, message: 'Authentication failed. User not found.' });
     } else if (user) {
+      var hashedPassword = '' + user.password + '';
       // check if password matches
-      if (user.password != req.body.password) {
-        res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+      var password = '' + req.body.password + '';
+      if (passwordHash.verify(password, hashedPassword) == true) {
+        res.json({message: 'Authentication failed. Wrong password.'});
       } else {
         // if user is found and password is right
         // create a token with only our given payload
     // we don't want to pass in the entire user since that has the password
-    const payload = {
-      admin: user.admin
-    };
+        const payload = {
+          admin: user.admin,
+          id: user.id,
+          name: user.name
+        };
         token = jwt.sign(payload, config.secret, {
-          expiresInMinutes: 1440 // expires in 24 hours
+          expiresIn : 60*60*24 // expires in 24 hours
         });
+        //var serialToken = JSON.stringify(token);
+        //localStorage.setItem("token", serialToken);
+        //var returnObj = JSON.parse(localStorage.getItem("token"))
         // return the information including token as JSON
-        res.json({
-          success: true,
-          message: 'Enjoy your token!',
-          token: token
-        });
+        res.render('index', {token: token});
       }
     }
   });

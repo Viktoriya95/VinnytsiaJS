@@ -14,8 +14,10 @@ block content
   <a href="#" onclick="hideA();" class="pages" style="float: right;">Close</a>
   </div></div>
   <div id="b">vvvv</div>
+  p #{token}
   div#map
-  <p><a href="../authenticate">Regist here</a></p>
+  <p><a href="../authenticate" script= "if(#{token}) display:none;">Authenticate here</a></p>
+  <p><a href="../users/add">Register here</a></p>
   <p><a href="../users">All users</a></p>
   script.
     var map;
@@ -25,6 +27,8 @@ block content
     var name = '';
     var comment = '';
     var form;
+    var returnObj;
+    var token;
     
     function initMap() {
       map = new google.maps.Map(document.getElementById('map'), {
@@ -40,7 +44,9 @@ block content
       .then((resp) => resp.json()) // Transform the data into json
       .then(function(checkins) {
         console.log(checkins);
-        checkins.map((checkin) => addMarker(checkin));
+        checkins.map((checkin) => {
+          addMarker(checkin);
+        });
       })
       .catch(function() {
         console.log('Error')
@@ -57,6 +63,9 @@ block content
     }
 
     function markerPanTo(latLng, map) {
+      var serialToken = JSON.stringify(#{token});
+      localStorage.setItem("token", serialToken);
+      token = window.localStorage.getItem('token');
       map.panTo(latLng);
       var latlng1 = new google.maps.LatLng(latLng.lat(), latLng.lng());
       cord = {
@@ -122,8 +131,9 @@ block content
         {
           method: 'POST',
           headers: {
-            "Content-Type": "application/json"
-          },
+            "Content-Type": "application/json",
+            'x-access-token': token
+            }
           body: JSON.stringify(marker)
         })
       .then(function (data) {

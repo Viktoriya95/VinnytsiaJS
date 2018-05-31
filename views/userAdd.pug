@@ -1,8 +1,18 @@
 extends layout
 
 block content
-    form(action="/users/add")
+    form(method='POST' action="/users/add")
         p Input your name here
-        input.form-control(type="text" name="firstName")
-        input.form-control(type="text" name="lastName")
+        div.form-group
+            label(for='name') Name:
+            input#name.form-control(type='text', placeholder='first and last' name='name', required)
+        div.form-group
+            label(for='email') Email:
+            input#email.form-control(type='email', placeholder='name@email.com' name='email', required)
+        div.form-group
+            label(for='twitterAccount') Twitter Account:
+            input#email.form-control(type='text', placeholder='@twitterAccount' name='twitterAccount', required)
+        div.form-group
+            label(for='pw') Password:
+            input#pw.form-control(type='password' name='password', required)
         button(type="submit") Send
