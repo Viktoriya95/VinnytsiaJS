@@ -14,7 +14,8 @@ const Checkins = new Schema({
     	lng:Number
     },
     description: String,
-    rating: Number
+    rating: Number,
+    votes: Number
 });
 
 module.exports = Checkins;
