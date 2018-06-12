@@ -1,8 +1,22 @@
 extends layout
 
 block content
+  <h1 id="myHeading"></h1>
   h1 All users
   pre #{users}
-  <p><a href="../authenticate">Authenticate here</a></p>
-  <p><a href="../users/add">Register here</a></p>
-  <p><a href="../users">All users</a></p>
+  <p><a href="../">To main page</a></p>
+  <p><a href="../authenticate" id="authenticate">Authenticate here</a></p>
+  <p><a href="../users/add" id="register">Register here</a></p>
+  script.
+    var registerLink = document.getElementById('register');
+    var authenticateLink = document.getElementById('authenticate');
+    var myHeading = document.getElementById('myHeading');
+    if(!localStorage.getItem('token')) {
+      myHeading.style.display = "none";
+    } else {
+      //authenticateLink.style.display = "none";
+      registerLink.style.display = "none";
+      authenticateLink.style.display = "none";
+      var storedName = localStorage.getItem("name");
+      myHeading.innerHTML = storedName + "'s cabinet";
+    }

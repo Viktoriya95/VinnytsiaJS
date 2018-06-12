@@ -12,7 +12,9 @@ const Checkins = new Schema({
     cord: {
     	lat:Number,
     	lng:Number
-    }
+    },
+    description: String,
+    rating: Number
 });
 
 module.exports = Checkins;

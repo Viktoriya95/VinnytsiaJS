@@ -1,23 +1,35 @@
 extends layout
 
 block content
-  <div id="a"><h1>Your comment</h1><div id="windows">
+  <div id="a"><h1>Do you want to save checkin</h1><div id="windows">
     <form>
       div.form-group
-        label(for='name') Name:
-        input#name.form-control(type='text', placeholder='first and last' name='name', required)
-      div.form-group
-        label(for='comment') Comment:
-        input#comment.form-control(type='textarea', placeholder='Your comment' name='comment')
+        label(for='description') Description:
+        input#description.form-control(type='textarea', placeholder='Your description' name='description')
+        <div>Rating of checkin</div>
+        <div>
+          <input id="star-4" type="radio" name="reviewStars"/>
+          <label title="gorgeous" for="star-4"></label>
+          <input id="star-3" type="radio" name="reviewStars"/>
+          <label title="good" for="star-3"></label>
+          <input id="star-2" type="radio" name="reviewStars"/>
+          <label title="regular" for="star-2"></label>
+          <input id="star-1" type="radio" name="reviewStars"/>
+          <label title="poor" for="star-1"></label>
+          <input id="star-0" type="radio" name="reviewStars"/>
+          <label title="bad" for="star-0"></label>
+        </div>
       button.btn.btn-primary(type='button' onclick="postData();") Save checkin    
     </form>
   <a href="#" onclick="hideA();" class="pages" style="float: right;">Close</a>
   </div></div>
   <div id="b">vvvv</div>
-  p #{token}
+  <h1 id="myHeading"></h1>
   div#map
-  <p><a href="../authenticate" script= "if(#{token}) display:none;">Authenticate here</a></p>
-  <p><a href="../users/add">Register here</a></p>
+  <p><a href="../authenticate" id="authenticate">Authenticate here</a></p>
+  <p><a href="../users/add" id="register">Register here</a></p>
+  <p><a href="javascript:remove()" id="remove">Remove user</a></p>
+  <p><a href="javascript:update()" id="update">Update user</a></p>
   <p><a href="../users">All users</a></p>
   script.
     var map;
@@ -25,10 +37,15 @@ block content
     var place;
     var marker;
     var name = '';
-    var comment = '';
+    var description = '';
+    var rating;
     var form;
-    var returnObj;
-    var token;
+    var registerLink = document.getElementById('register');
+    var authenticateLink = document.getElementById('authenticate');
+    var myHeading = document.getElementById('myHeading');
+    
+    //map.event.addDomListener(window, 'load', initMap);
+    window.onload = initMap();
     
     function initMap() {
       map = new google.maps.Map(document.getElementById('map'), {
@@ -43,10 +60,7 @@ block content
     fetch('http://localhost:3000/checkins')
       .then((resp) => resp.json()) // Transform the data into json
       .then(function(checkins) {
-        console.log(checkins);
-        checkins.map((checkin) => {
-          addMarker(checkin);
-        });
+        checkins.map((checkin) => addMarker(checkin));
       })
       .catch(function() {
         console.log('Error')
@@ -61,11 +75,18 @@ block content
       });
       markers.push(marker);
     }
+    
+    if(!localStorage.getItem('token')) {
+      myHeading.style.display = "none";
+    } else {
+      //authenticateLink.style.display = "none";
+      registerLink.style.display = "none";
+      authenticateLink.style.display = "none";
+      var storedName = localStorage.getItem("name");
+      myHeading.innerHTML = storedName + "'s cabinet";
+    }
 
     function markerPanTo(latLng, map) {
-      var serialToken = JSON.stringify(#{token});
-      localStorage.setItem("token", serialToken);
-      token = window.localStorage.getItem('token');
       map.panTo(latLng);
       var latlng1 = new google.maps.LatLng(latLng.lat(), latLng.lng());
       cord = {
@@ -87,7 +108,7 @@ block content
                 map: map
               })
             formMarker();
-            infowindow.open(map, marker);
+            //infoWindow.open(localStorage.getItem("name"));
           } else {
             window.alert('No results found');
           }
@@ -119,27 +140,72 @@ block content
     
     function formMarker(){
       marker = {
-        name: name,
+        name: localStorage.getItem("name"),
         place: place,
-        cord: cord
+        cord: cord,
+        description: description,
+        rating: rating
       }
     }
     
-    function postData(){
-      marker.name = document.getElementById('name').value;
-      fetch('http://localhost:3000/addcheckin',
+    function remove(){
+      fetch('http://localhost:3000/users/remove',
         {
           method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            'x-access-token': token
-            }
-          body: JSON.stringify(marker)
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({token: localStorage.getItem("token")})
         })
       .then(function (data) {
         console.log('Request succeeded with JSON response', data);
       })
+      .then(()=> {
+        localStorage.removeItem('name');
+        localStorage.removeItem('token');
+        window.location.replace('http://localhost:3000');
+      })
+      .catch(function (error) {
+        console.log('Request failed', error);
+      });
+    }
+    
+    function update(){
+      window.location.replace('http://localhost:3000/users/update');
+    }
+    
+    function postData(){
+      marker.description = document.getElementById('description').value;
+      
+      var reviewStars = document.getElementsByName('reviewStars');
+      for ( var i = 0; i < reviewStars.length; i++) {
+        if(reviewStars[i].checked) {
+          marker.rating = i + 1;
+          console.log(marker.rating);
+          break;
+        }
+      }
+      
+      fetch('http://localhost:3000/addcheckin',
+        {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({marker: marker, token: localStorage.getItem("token")})
+        })
       .then(hideA())
+      .then((resp) => resp.json())
+      .then(function (data) {
+        console.log('Request succeeded with JSON response', data);
+        if(data.message){
+        var message = data.message;
+        document.write(message + '<br \/>' + '<br \/>' +
+                      '<a href="../authenticate" id="authenticate">Authenticate here</a>' + '<br \/>'+
+                      '<a href="../users/add" id="register">Register here</a>' + '<br \/>' +
+                      '<a href="../users">All users</a>');
+        }else{hideA();}
+      })
       .catch(function (error) {
         console.log('Request failed', error);
       });

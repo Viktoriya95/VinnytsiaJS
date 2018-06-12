@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "express": "~4.16.0",
@@ -13,7 +14,9 @@
     "jsonwebtoken": "^8.2.1",
     "mongoose": "^5.0.15",
     "morgan": "~1.9.0",
+    "npm": "^6.1.0",
     "password-hash": "^1.2.2",
+    "password-hash-and-salt": "^0.1.4",
     "pug": "2.0.0-beta11"
   }
 }

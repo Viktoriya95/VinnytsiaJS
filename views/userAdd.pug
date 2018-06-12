@@ -1,7 +1,7 @@
 extends layout
 
 block content
-    form(method='POST' action="/users/add")
+    form
         p Input your name here
         div.form-group
             label(for='name') Name:
@@ -11,8 +11,67 @@ block content
             input#email.form-control(type='email', placeholder='name@email.com' name='email', required)
         div.form-group
             label(for='twitterAccount') Twitter Account:
-            input#email.form-control(type='text', placeholder='@twitterAccount' name='twitterAccount', required)
+            input#twitterAccount.form-control(type='text', placeholder='@twitterAccount' name='twitterAccount', required)
         div.form-group
-            label(for='pw') Password:
+            label(for='password') Password:
             input#pw.form-control(type='password' name='password', required)
-        button(type="submit") Send
+        button(type='button' onclick="registerData();") Send
+        
+    <p><a href="../">To main page</a></p>
+    <p><a href="../users">All users</a></p>
+
+    script.
+      var user;
+      
+      function registerData(){
+        formData();
+        fetch('http://localhost:3000/users/add',
+          {
+            method: 'POST',
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(user)
+          })
+        .then(()=> {
+          fetch('http://localhost:3000/authenticate',
+            {
+              method: 'POST',
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(user)
+            })
+          .then((resp)=> resp.json())
+          .then(function(data) {
+            var token = data.token;
+            var name = data.userName;
+            if(name){
+              localStorage.setItem("token", token);
+              localStorage.setItem("name", name);
+              window.location.replace('http://localhost:3000');
+            }else{
+              var message = data.message;
+              document.write(message + '<br \/>' + '<br \/>' +
+                            '<a href="../">To main page</a>' + '<br \/>' +
+                            '<a href="../users">All users</a>');
+            }
+          })
+          .catch(function (error) {
+            console.log('Request failed', error);
+          })
+        })
+        .catch(function (error) {
+          console.log('Request failed', error);
+        })
+      }
+
+      function formData(){
+        user = {
+          admin: false,
+          name: document.getElementById('name').value,
+          email: document.getElementById('email').value,
+          twitterAccount: document.getElementById('twitterAccount').value,
+          password: document.getElementById('pw').value
+        }
+      }
