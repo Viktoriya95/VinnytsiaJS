@@ -53,9 +53,7 @@ router.post('/addcheckin', function(req, res){
         //req.decoded = decoded;
         console.log(decoded);
         var marker = req.body.marker;
-        if(marker.votes){
-          votes = 1;
-        }else{votes = 0;}
+     
         let checkin = {
           name: marker.name,
           place: marker.place,
@@ -65,7 +63,7 @@ router.post('/addcheckin', function(req, res){
           },
           description: marker.description,
           rating: Number(marker.rating),
-          votes: votes
+          votes: Number(marker.votes)
         }
         console.log(checkin);
         const newCheckin = new checkinModel(checkin);
