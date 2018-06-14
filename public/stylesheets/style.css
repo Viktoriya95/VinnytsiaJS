@@ -1,0 +1,138 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.error {
+  color: #FF0000;
+  text-align: center;
+}
+img {
+  height: 200px;
+}
+
+#map{
+	height: 500px;
+}
+
+
+#b {
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+display:none;
+background: grey;
+z-index:1;
+}
+
+#a {
+border:1px solid black;
+position:fixed;
+background: #eff7ff;
+z-index:3;
+display:none;
+}
+
+#windows {
+padding:5px;
+width: 500px;
+height: 300px;
+border: 2px solid blue;
+}
+
+a.pages
+{
+background: #97cdff;
+color: white;
+padding: 4px;
+text-decoration: none;
+}
+
+a:hover.pages
+{
+background: red;
+color: white;
+padding: 4px;
+text-decoration: none;
+}
+
+/*sprite with stars*/
+#reviewStars-input input:checked ~ label,  #reviewStars-input label, #reviewStars-input input:hover, #reviewStars-input input:hover ~ label {
+  background: url('http://positivecrash.com/wp-content/uploads/ico-s71a7fdede6.png') no-repeat;
+}
+
+#reviewStars-input {
+
+  /*fix floating problems*/
+  overflow: hidden;
+  *zoom: 1;
+  /*end of fix floating problems*/
+
+  position: relative;
+  float: left;
+}
+
+#reviewStars-input input {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  opacity: 0;
+  width: 45px;
+  height: 40px;
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  float: right;
+  cursor: pointer;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+#reviewStars-input input:checked ~ label {
+  background-position: 0 -40px;
+  height: 40px;
+  width: 43px;
+}
+
+#reviewStars-input label {
+  background-position: 0 0;
+  height: 40px;
+  width: 43px;
+  float: right;
+  cursor: pointer;
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-top: 3px;
+
+  position: relative;
+  z-index: 1;
+}
+
+#reviewStars-input input:hover, #reviewStars-input input:hover ~ label {
+  background-position: 0 -40px;
+  height: 40px;
+  width: 43px;
+}
+
+#reviewStars-input #star-0 {
+  left: 0px;
+}
+#reviewStars-input #star-1 {
+  left: 63px;
+}
+#reviewStars-input #star-2 {
+  left: 126px;
+}
+#reviewStars-input #star-3 {
+  left: 189px;
+}
+#reviewStars-input #star-4 {
+  left: 252px;
+}
+#reviewStars-input #star-5 {
+  left: 315px;
+}

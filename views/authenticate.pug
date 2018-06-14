@@ -1,0 +1,59 @@
+extends layout
+
+block content
+  .main.container
+    .row
+      .col-md-6.col-md-offset-3
+        h1.display-4.m-b-2 Sign Up
+
+        // register form
+        form
+          div.form-group
+            label(for='name') Name:
+            input#name.form-control(type='text', placeholder='first and last' name='name', required)
+            label(for='pw') Password:
+            input#pw.form-control(type='password' name='password', required)
+          button.btn.btn-primary(type='button' onclick="postData();") Sign up
+
+      <p><a href="../">To main page</a></p>
+      <p><a href="../users">All users</a></p>
+
+      script.
+        var user;
+
+        function postData(){
+          formData();
+          fetch('http://localhost:3000/authenticate',
+            {
+              method: 'POST',
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(user)
+            })
+          .then((resp)=> resp.json())
+          .then(function(data) {
+            var token = data.token;
+            var name = data.userName;
+            if(name){
+              localStorage.setItem("token", token);
+              localStorage.setItem("name", name);
+              window.location.replace('http://localhost:3000');
+            }else{
+              var message = data.message;
+              document.write(message + '<br \/>' + '<br \/>' +
+                            '<a href="../">To main page</a>' + '<br \/>' +
+                            '<a href="../users">All users</a>');
+            }
+          })
+          .catch(function (error) {
+            console.log('Request failed', error);
+          })
+        }
+
+        function formData(){
+          user = {
+            name: document.getElementById('name').value,
+            password: document.getElementById('pw').value
+          }
+        }

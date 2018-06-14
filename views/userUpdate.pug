@@ -1,0 +1,48 @@
+extends layout
+
+block content
+    form
+      div.form-group
+          label(for='email') Email:
+          input#email.form-control(type='email', placeholder='name@email.com' name='email')
+      div.form-group
+          label(for='twitterAccount') Twitter Account:
+          input#twitterAccount.form-control(type='text', placeholder='@twitterAccount' name='twitterAccount')
+      div.form-group
+          label(for='password') Password:
+          input#pw.form-control(type='password' name='password')
+      button(type='button' onclick="registerData();") Send
+        
+    <p><a href="../">To main page</a></p>
+    <p><a href="../users">All users</a></p>
+
+    script.
+      var user;
+      var token; 
+      
+      function registerData(){
+        formData();
+        fetch('http://localhost:3000/users/update',
+          {
+            method: 'POST',
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({user: user, token: token})
+          })
+        .then(()=> window.location.replace('/'))
+        .catch(function (error) {
+          console.log('Request failed', error);
+        })
+      }
+
+      function formData(){
+        user = {
+          name: localStorage.getItem("name"),
+          admin: false,
+          email: document.getElementById('email').value,
+          twitterAccount: document.getElementById('twitterAccount').value,
+          password: document.getElementById('pw').value
+        };
+        token = localStorage.getItem("token");
+      }

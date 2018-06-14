@@ -1,0 +1,269 @@
+extends layout
+
+block content
+  <div id="a"><h1>Do you want to save checkin</h1><div id="windows">
+    <form id= "saveCheckin">
+      div.form-group
+        label(for='description') Description:
+        input#description.form-control(type='textarea', placeholder='Your description' name='description')
+        <div>Rating of checkin</div>
+        <div id="reviewStars-input">
+          <input id="star-4" type="radio" name="reviewStars"/>
+          <label title="gorgeous" for="star-4"></label>
+          <input id="star-3" type="radio" name="reviewStars"/>
+          <label title="good" for="star-3"></label>
+          <input id="star-2" type="radio" name="reviewStars"/>
+          <label title="regular" for="star-2"></label>
+          <input id="star-1" type="radio" name="reviewStars"/>
+          <label title="poor" for="star-1"></label>
+          <input id="star-0" type="radio" name="reviewStars"/>
+          <label title="bad" for="star-0"></label>
+        </div>
+      button.btn.btn-primary(type='button' style="float: left;" onclick="postData();") Save checkin
+    </form>
+  <a href="#" onclick="hideA();" class="pages" style="float: right;">Close</a>
+  </div></div>
+  <div id="b">vvvv</div>
+  <h1 id="myHeading"></h1>
+  div#map
+  <p><a href="../authenticate" id="authenticate">Authenticate here</a></p>
+  <p><a href="../users/add" id="register">Register here</a></p>
+  <p><a href="javascript:remove()" id="remove">Remove user</a></p>
+  <p><a href="javascript:update()" id="update">Update user</a></p>
+  <p><a href="../users">All users</a></p>
+  script.
+    var map;
+    var markers = [];
+    var place;
+    var marker;
+    var name = '';
+    var description = '';
+    var rating;
+    var form;
+    var votes;
+    var id;
+    var registerLink = document.getElementById('register');
+    var authenticateLink = document.getElementById('authenticate');
+    var myHeading = document.getElementById('myHeading');
+    
+    
+    //map.event.addDomListener(window, 'load', initMap);
+    window.onload = initMap();
+    
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 49.2212619, lng: 28.4229144 },
+        zoom: 14
+      });
+      map.addListener('click', function(e) {
+        markerPanTo(e.latLng, map);
+      });
+      fetch('http://localhost:3000/checkins')
+      .then((resp) => resp.json()) // Transform the data into json
+      .then(function(checkins) {
+        checkins.map((checkin) => addMarker(checkin));
+      })
+      .catch(function() {
+        console.log('Error')
+      });
+      if(!localStorage.getItem('token')) {
+        myHeading.style.display = "none";
+      } else {
+        //authenticateLink.style.display = "none";
+        registerLink.style.display = "none";
+        authenticateLink.style.display = "none";
+        var storedName = localStorage.getItem("name");
+        myHeading.innerHTML = storedName + "'s cabinet";
+      }
+    }
+    
+    function addMarker(checkin) {
+      var infoWindow = new google.maps.InfoWindow();
+      //- debugger;
+      
+      var marker = new google.maps.Marker({
+        position: checkin.cord,
+        map: map,
+        title: checkin.place,
+        label: checkin.name
+      });
+      marker.addListener('click', function() {
+        map.setCenter(marker.getPosition());
+        id = checkin._id;
+        var content = '<p>Description: </p>' + checkin.description +
+                      '<p></p>' +
+                      '<p>Rating: </p>' + Number(checkin.raiting) +
+                      '<p></p>' +
+                      '<p>Vote: </p>' +
+                      '<p></p>' +
+                      '<div id="reviewStars-input">'+
+                        '<input id="star-4" type="radio" name="reviewStars"/>'+
+                        '<label title="gorgeous" for="star-4"></label>'+
+                        '<input id="star-3" type="radio" name="reviewStars"/>'+
+                        '<label title="good" for="star-3"></label>'+
+                        '<input id="star-2" type="radio" name="reviewStars"/>'+
+                        '<label title="regular" for="star-2"></label>'+
+                        '<input id="star-1" type="radio" name="reviewStars"/>'+
+                        '<label title="poor" for="star-1"></label>'+
+                        '<input id="star-0" type="radio" name="reviewStars"/>'+
+                        '<label title="bad" for="star-0"></label>'+
+                      '</div>'+
+                      '<p></p>' +
+                      '<input type="button" value= "Vote" onclick="vote();">';
+        infoWindow.setContent(content);
+        infoWindow.open(map, marker);
+      });
+      markers.push(marker);
+    }
+
+    function markerPanTo(latLng, map) {
+      map.panTo(latLng);
+      var latlng1 = new google.maps.LatLng(latLng.lat(), latLng.lng());
+      cord = {
+          lat:Number(latLng.lat()),
+          lng:Number(latLng.lng())
+        }
+      saveUserComments(map, latlng1);
+    }
+
+    function geocode(map, latlng1){
+      var geocoder = new google.maps.Geocoder();
+      geocoder.geocode({'location': latlng1}, function(results, status) {
+        if (status === 'OK') {
+          if (results[1]) {
+            place = results[0].formatted_address;
+            var marker = new google.maps.Marker({
+                position: latlng1,
+                map: map
+              })
+            formMarker();
+          } else {
+            window.alert('No results found');
+          }
+        } else {
+          window.alert('Geocoder failed due to: ' + status);
+        }
+      });
+    }
+    
+    function saveUserComments(map, latlng1){
+      window.onload = function()
+      {
+        a = document.getElementById("a");
+        b = document.getElementById("b");
+      }
+      b.style.filter = "alpha(opacity=80)";
+      b.style.opacity = 0.8;
+      b.style.display = "block";
+      a.style.display = "block";
+      a.style.top = "200px";
+      geocode(map, latlng1);
+    }
+    
+    function hideA()
+    {
+      b.style.display = "none";
+      a.style.display = "none";
+      document.getElementById('saveCheckin').reset();
+    }
+    
+    function formMarker(){
+      marker = {
+        id: id,
+        name: localStorage.getItem("name"),
+        place: place,
+        cord: cord,
+        description: description,
+        rating: rating,
+        votes: votes
+      }
+    }
+    
+    function remove(){
+      fetch('http://localhost:3000/users/remove',
+        {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({token: localStorage.getItem("token")})
+        })
+      .then(function (data) {
+        console.log('Request succeeded with JSON response', data);
+      })
+      .then(()=> {
+        localStorage.removeItem('name');
+        localStorage.removeItem('token');
+        window.location.replace('http://localhost:3000');
+      })
+      .catch(function (error) {
+        console.log('Request failed', error);
+      });
+    }
+    
+    function update(){
+      window.location.replace('http://localhost:3000/users/update');
+    }
+    
+    function vote(){
+      var vote;
+      var reviewStars1 = document.getElementsByName('reviewStars');
+      for ( var i = 0; i < reviewStars1.length; i++) {
+        if(reviewStars1[i].checked) {
+          vote = reviewStars1.length - i;
+          console.log(vote);
+          console.log(id);
+          break;
+        }
+      }
+      fetch('http://localhost:3000/vote',
+        {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({id: id, vote: vote})
+        })
+      .then(()=> window.location.replace('/'))
+      .then((data)=> console.log("Response" + data))
+      .catch(function (error) {
+        console.log('Request failed', error);
+      });
+    }
+    
+    function postData(){
+      marker.description = document.getElementById('description').value;
+      
+      var reviewStars = document.getElementsByName('reviewStars');
+      for ( var i = 0; i < reviewStars.length; i++) {
+        if(reviewStars[i].checked) {
+          marker.rating = reviewStars.length - i;
+          console.log(marker.rating);
+          break;
+        }
+      }
+      
+      fetch('http://localhost:3000/addcheckin',
+        {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({marker: marker, token: localStorage.getItem("token")})
+        })
+      .then(hideA())
+      .then((resp) => resp.json())
+      .then(function (data) {
+        console.log('Request succeeded with JSON response', data);
+        if(data.message){
+        var message = data.message;
+        document.write(message + '<br \/>' + '<br \/>' +
+                      '<a href="../authenticate" id="authenticate">Authenticate here</a>' + '<br \/>'+
+                      '<a href="../users/add" id="register">Register here</a>' + '<br \/>' +
+                      '<a href="../users">All users</a>');
+        }else{hideA();}
+      })
+      .catch(function (error) {
+        console.log('Request failed', error);
+      });
+    }
