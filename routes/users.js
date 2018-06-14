@@ -48,7 +48,6 @@ router.post('/add', function(req, res, next) {
     console.log(error, user);
     res.sendStatus(200);
   });
-  res.sendStatus(200);
 });
 
 router.post('/remove', function(req, res){
