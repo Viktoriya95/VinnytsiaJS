@@ -58,7 +58,7 @@ block content
       map.addListener('click', function(e) {
         markerPanTo(e.latLng, map);
       });
-      fetch('http://localhost:3000/checkins')
+      fetch('/checkins')
       .then((resp) => resp.json()) // Transform the data into json
       .then(function(checkins) {
         checkins.map((checkin) => addMarker(checkin));
@@ -180,7 +180,7 @@ block content
     }
     
     function remove(){
-      fetch('http://localhost:3000/users/remove',
+      fetch('/users/remove',
         {
           method: 'POST',
           headers: {
@@ -194,7 +194,7 @@ block content
       .then(()=> {
         localStorage.removeItem('name');
         localStorage.removeItem('token');
-        window.location.replace('http://localhost:3000');
+        window.location.replace('/');
       })
       .catch(function (error) {
         console.log('Request failed', error);
@@ -202,7 +202,7 @@ block content
     }
     
     function update(){
-      window.location.replace('http://localhost:3000/users/update');
+      window.location.replace('/users/update');
     }
     
     function vote(){
@@ -216,7 +216,7 @@ block content
           break;
         }
       }
-      fetch('http://localhost:3000/vote',
+      fetch('/vote',
         {
           method: 'POST',
           headers: {
@@ -243,7 +243,7 @@ block content
         }
       }
       
-      fetch('http://localhost:3000/addcheckin',
+      fetch('/addcheckin',
         {
           method: 'POST',
           headers: {
