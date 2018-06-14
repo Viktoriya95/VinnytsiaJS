@@ -2,12 +2,12 @@ extends layout
 
 block content
   <div id="a"><h1>Do you want to save checkin</h1><div id="windows">
-    <form>
+    <form id= "saveCheckin">
       div.form-group
         label(for='description') Description:
         input#description.form-control(type='textarea', placeholder='Your description' name='description')
         <div>Rating of checkin</div>
-        <div>
+        <div id="reviewStars-input">
           <input id="star-4" type="radio" name="reviewStars"/>
           <label title="gorgeous" for="star-4"></label>
           <input id="star-3" type="radio" name="reviewStars"/>
@@ -19,7 +19,7 @@ block content
           <input id="star-0" type="radio" name="reviewStars"/>
           <label title="bad" for="star-0"></label>
         </div>
-      button.btn.btn-primary(type='button' onclick="postData();") Save checkin    
+      button.btn.btn-primary(type='button' style="float: left;" onclick="postData();") Save checkin
     </form>
   <a href="#" onclick="hideA();" class="pages" style="float: right;">Close</a>
   </div></div>
@@ -41,9 +41,11 @@ block content
     var rating;
     var form;
     var votes;
+    var id;
     var registerLink = document.getElementById('register');
     var authenticateLink = document.getElementById('authenticate');
     var myHeading = document.getElementById('myHeading');
+    
     
     //map.event.addDomListener(window, 'load', initMap);
     window.onload = initMap();
@@ -56,9 +58,7 @@ block content
       map.addListener('click', function(e) {
         markerPanTo(e.latLng, map);
       });
-    }
-
-    fetch('http://localhost:3000/checkins')
+      fetch('http://localhost:3000/checkins')
       .then((resp) => resp.json()) // Transform the data into json
       .then(function(checkins) {
         checkins.map((checkin) => addMarker(checkin));
@@ -66,25 +66,54 @@ block content
       .catch(function() {
         console.log('Error')
       });
-
+      if(!localStorage.getItem('token')) {
+        myHeading.style.display = "none";
+      } else {
+        //authenticateLink.style.display = "none";
+        registerLink.style.display = "none";
+        authenticateLink.style.display = "none";
+        var storedName = localStorage.getItem("name");
+        myHeading.innerHTML = storedName + "'s cabinet";
+      }
+    }
+    
     function addMarker(checkin) {
+      var infoWindow = new google.maps.InfoWindow();
       //- debugger;
+      
       var marker = new google.maps.Marker({
         position: checkin.cord,
         map: map,
-        title: checkin.place
+        title: checkin.place,
+        label: checkin.name
+      });
+      marker.addListener('click', function() {
+        map.setCenter(marker.getPosition());
+        id = checkin._id;
+        var content = '<p>Description: </p>' + checkin.description +
+                      '<p></p>' +
+                      '<p>Rating: </p>' + Number(checkin.raiting) +
+                      '<p></p>' +
+                      '<p>Vote: </p>' +
+                      '<p></p>' +
+                      '<div id="reviewStars-input">'+
+                        '<input id="star-4" type="radio" name="reviewStars"/>'+
+                        '<label title="gorgeous" for="star-4"></label>'+
+                        '<input id="star-3" type="radio" name="reviewStars"/>'+
+                        '<label title="good" for="star-3"></label>'+
+                        '<input id="star-2" type="radio" name="reviewStars"/>'+
+                        '<label title="regular" for="star-2"></label>'+
+                        '<input id="star-1" type="radio" name="reviewStars"/>'+
+                        '<label title="poor" for="star-1"></label>'+
+                        '<input id="star-0" type="radio" name="reviewStars"/>'+
+                        '<label title="bad" for="star-0"></label>'+
+                      '</div>'+
+                      '<p></p>' +
+                      '<input type="button" value= "Vote" onclick="vote();">';
+        infoWindow.setContent(content);
+        infoWindow.open(map, marker);
       });
       markers.push(marker);
-    }
-    
-    if(!localStorage.getItem('token')) {
-      myHeading.style.display = "none";
-    } else {
-      //authenticateLink.style.display = "none";
-      registerLink.style.display = "none";
-      authenticateLink.style.display = "none";
-      var storedName = localStorage.getItem("name");
-      myHeading.innerHTML = storedName + "'s cabinet";
     }
 
     function markerPanTo(latLng, map) {
@@ -98,7 +127,6 @@ block content
     }
 
     function geocode(map, latlng1){
-      var infoWindow = new google.maps.InfoWindow();
       var geocoder = new google.maps.Geocoder();
       geocoder.geocode({'location': latlng1}, function(results, status) {
         if (status === 'OK') {
@@ -109,7 +137,6 @@ block content
                 map: map
               })
             formMarker();
-            //infoWindow.open(localStorage.getItem("name"));
           } else {
             window.alert('No results found');
           }
@@ -137,10 +164,12 @@ block content
     {
       b.style.display = "none";
       a.style.display = "none";
+      document.getElementById('saveCheckin').reset();
     }
     
     function formMarker(){
       marker = {
+        id: id,
         name: localStorage.getItem("name"),
         place: place,
         cord: cord,
@@ -176,16 +205,40 @@ block content
       window.location.replace('http://localhost:3000/users/update');
     }
     
+    function vote(){
+      var vote;
+      var reviewStars1 = document.getElementsByName('reviewStars');
+      for ( var i = 0; i < reviewStars1.length; i++) {
+        if(reviewStars1[i].checked) {
+          vote = reviewStars1.length - i;
+          console.log(vote);
+          console.log(id);
+          break;
+        }
+      }
+      fetch('http://localhost:3000/vote',
+        {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({id: id, vote: vote})
+        })
+      .then(()=> window.location.replace('/'))
+      .then((data)=> console.log("Response" + data))
+      .catch(function (error) {
+        console.log('Request failed', error);
+      });
+    }
+    
     function postData(){
       marker.description = document.getElementById('description').value;
       
       var reviewStars = document.getElementsByName('reviewStars');
       for ( var i = 0; i < reviewStars.length; i++) {
         if(reviewStars[i].checked) {
-          marker.rating = i + 1;
+          marker.rating = reviewStars.length - i;
           console.log(marker.rating);
-          if(marker.rating){marker.votes = 1}
-            else{marker.votes = 0}
           break;
         }
       }

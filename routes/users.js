@@ -48,6 +48,7 @@ router.post('/add', function(req, res, next) {
     console.log(error, user);
     res.sendStatus(200);
   });
+  res.sendStatus(200);
 });
 
 router.post('/remove', function(req, res){
@@ -65,7 +66,7 @@ router.post('/remove', function(req, res){
         console.log(decoded.id);
         userModel.deleteOne({_id: decoded.id}, function(err, result){
         console.log(result);
-      });
+        });
         res.sendStatus(200);
       }
     });} else {

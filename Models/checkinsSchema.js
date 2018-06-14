@@ -14,7 +14,7 @@ const Checkins = new Schema({
     	lng:Number
     },
     description: String,
-    rating: Number,
+    raiting: Number,
     votes: Number
 });
 

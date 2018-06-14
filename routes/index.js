@@ -33,7 +33,7 @@ router.get('/checkins', function(req, res, next) {
   // });
   checkinModel.find({}, function (err, checkins) {
     //console.log(checkins[0].cord);
-    //console.log(checkins);
+    console.log(checkins);
     //res.render('index', {checkins: checkins});
     res.send( checkins );
   })
@@ -53,7 +53,11 @@ router.post('/addcheckin', function(req, res){
         //req.decoded = decoded;
         console.log(decoded);
         var marker = req.body.marker;
-     
+        if(marker.rating > 0){marker.votes = 1;}
+        else if(marker.votes == undefined)
+        {marker.votes = 0;
+        marker.rating = 0;}
+
         let checkin = {
           name: marker.name,
           place: marker.place,
@@ -62,7 +66,7 @@ router.post('/addcheckin', function(req, res){
           	lng:Number(marker.cord.lng)
           },
           description: marker.description,
-          rating: Number(marker.rating),
+          raiting: Number(marker.rating),
           votes: Number(marker.votes)
         }
         console.log(checkin);
@@ -77,6 +81,36 @@ router.post('/addcheckin', function(req, res){
     // return an error
     res.send({'message': 'Only registered users can make checkins.'});
   }
+})
+
+router.post('/vote', function(req, res){
+  console.log("hello");
+  var id = req.body.id;
+  var vote = req.body.vote;
+  var votes;
+
+  checkinModel.findOne({_id: id}, function(err, checkin) {
+    console.log(checkin.votes);
+    console.log(checkin.raiting);
+    if(checkin.votes!=undefined){
+      votes = checkin.votes;
+    }else {
+      votes = 0;
+    }
+    if(checkin.raiting!=undefined){
+      var checkinVote = (checkin.raiting*votes + vote)/(votes + 1);
+    }else{
+      checkinVote = vote;
+    }
+    console.log(votes);
+    console.log(checkinVote);
+    checkinModel.updateOne({_id: id},
+    { $set: {votes: votes+1, raiting: checkinVote}}, function(err, result){
+        console.log(result);
+      }
+    );
+  })
+  res.sendStatus(200);
 })
 
 module.exports = router;
