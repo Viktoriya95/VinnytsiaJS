@@ -32,7 +32,7 @@ block content
         }else{
           document.getElementById('field').style.display = "none";
           formData();
-          fetch('http://localhost:3000/users/add',
+          fetch('/users/add',
             {
               method: 'POST',
               headers: {
@@ -41,7 +41,7 @@ block content
               body: JSON.stringify(user)
             })
           .then(()=> {
-            fetch('http://localhost:3000/authenticate',
+            fetch('/authenticate',
               {
                 method: 'POST',
                 headers: {
@@ -56,7 +56,7 @@ block content
               if(name){
                 localStorage.setItem("token", token);
                 localStorage.setItem("name", name);
-                window.location.replace('http://localhost:3000');
+                window.location.replace('/');
               }else{
                 var message = data.message;
                 document.write(message + '<br \/>' + '<br \/>' +
